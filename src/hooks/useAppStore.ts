@@ -7,7 +7,15 @@ const STORAGE_KEY_MENUS = 'app_menus';
 export function useAppStore() {
   const [ingredients, setIngredients] = useState<Ingredient[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_INGREDIENTS);
-    return saved ? JSON.parse(saved) : [];
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((item: any) => ({
+        ...item,
+        amount: item.amount ?? (parseFloat(item.quantity) || 1),
+        unit: item.unit ?? (item.quantity ? item.quantity.replace(/[0-9.]/g, '') : '份'),
+      }));
+    }
+    return [];
   });
 
   const [menus, setMenus] = useState<DailyMenu[]>(() => {
@@ -35,6 +43,10 @@ export function useAppStore() {
 
   const removeIngredient = (id: string) => {
     setIngredients(prev => prev.filter(i => i.id !== id));
+  };
+
+  const updateIngredientAmount = (id: string, amount: number) => {
+    setIngredients(prev => prev.map(i => i.id === id ? { ...i, amount } : i));
   };
 
   // --- Menus ---
@@ -89,6 +101,7 @@ export function useAppStore() {
     ingredients,
     addIngredient,
     removeIngredient,
+    updateIngredientAmount,
     menus,
     getMenuByDate,
     addDish,
