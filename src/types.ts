@@ -4,7 +4,8 @@ export interface Ingredient {
   id: string;
   name: string;
   category: IngredientCategory;
-  quantity: string;
+  amount: number;
+  unit: string;
   createdAt: number;
 }
 
