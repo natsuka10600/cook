@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { format } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
-import { Plus, Camera, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Camera, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dish, MealType } from '../types';
 import { cn } from '../lib/utils';
 
@@ -11,11 +11,14 @@ interface TodayViewProps {
   onAddDish: (dish: Omit<Dish, 'id'>) => void;
   onRemoveDish: (dishId: string) => void;
   onUpdatePhoto: (dishId: string, photoUrl: string) => void;
+  onPrevDay: () => void;
+  onNextDay: () => void;
+  onToday: () => void;
 }
 
 const MEAL_TYPES: MealType[] = ['早餐', '午餐', '晚餐', '點心'];
 
-export function TodayView({ date, dishes, onAddDish, onRemoveDish, onUpdatePhoto }: TodayViewProps) {
+export function TodayView({ date, dishes, onAddDish, onRemoveDish, onUpdatePhoto, onPrevDay, onNextDay, onToday }: TodayViewProps) {
   const [addingType, setAddingType] = useState<MealType | null>(null);
   const [newDishName, setNewDishName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,11 +55,28 @@ export function TodayView({ date, dishes, onAddDish, onRemoveDish, onUpdatePhoto
 
   return (
     <div className="p-4 pb-24 max-w-md mx-auto min-h-screen bg-stone-50">
-      <header className="mb-6 pt-4">
-        <h1 className="text-2xl font-bold text-stone-800">
-          {format(new Date(date), 'MM月dd日 EEEE', { locale: zhTW })}
-        </h1>
-        <p className="text-stone-500 text-sm mt-1">今天的料理計畫</p>
+      <header className="mb-6 pt-4 flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <button onClick={onPrevDay} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200 rounded-full transition-colors">
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-stone-800">
+              {format(new Date(date), 'MM月dd日 EEEE', { locale: zhTW })}
+            </h1>
+            <p className="text-stone-500 text-sm mt-1">
+              {isToday(new Date(date)) ? '今天的料理計畫' : '料理計畫'}
+            </p>
+          </div>
+          <button onClick={onNextDay} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200 rounded-full transition-colors">
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+        {!isToday(new Date(date)) && (
+          <button onClick={onToday} className="text-sm text-orange-600 font-medium bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors">
+            回到今日
+          </button>
+        )}
       </header>
 
       <input
